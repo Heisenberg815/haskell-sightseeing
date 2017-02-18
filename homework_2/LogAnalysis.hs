@@ -49,3 +49,23 @@ parseMessage p @ ('E':' ':s)
   | otherwise  = LogMessage (Error el) t m
   where (el, (t, m)) = parseErrLvlTimeStampAndMessage s 
 parseMessage s = Unknown s
+
+parse :: String -> [LogMessage]
+parse s = map parseMessage (lines s)
+
+-- Ex 2
+getTimeStampFromLogMsg :: LogMessage -> TimeStamp
+getTimeStampFromLogMsg (Unknown _) = (-1)
+getTimeStampFromLogMsg (LogMessage Info t _) = t
+getTimeStampFromLogMsg (LogMessage Warning t _) = t
+getTimeStampFromLogMsg (LogMessage (Error _) t _) = t
+
+insert :: LogMessage -> MessageTree -> MessageTree
+insert (Unknown _) mtree = mtree
+insert lm Leaf = Node Leaf lm Leaf
+insert lm (Node ltree nodelm rtree)
+  | tstamp < nodetstamp = Node (insert lm ltree) nodelm rtree
+  | otherwise = Node ltree nodelm (insert lm rtree)
+  where
+    tstamp = getTimeStampFromLogMsg lm
+    nodetstamp = getTimeStampFromLogMsg nodelm
