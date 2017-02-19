@@ -3,12 +3,19 @@ module LogAnalysis where
 import Log
 import Data.Char
 
+-- Note on the Ex1: the parse function would not work properly if there was
+-- multiple spaces between words in the log sample. It could be solved by
+-- stripping the unecessary spaces from the input logs.
+
 -- Ex 1
 isStringNumber :: String -> Bool
 isStringNumber ""     = False
 isStringNumber (x:[]) = isNumber x
 isStringNumber (x:s)  = (isNumber x) && isStringNumber s
 
+-- |Parse a timestamp and a content message in a String such as "42 Hello!"
+-- In that case it would return (42, "Hello!"). If the input String cannot be
+-- parsed in such a way, by convention we return (-1, "").
 parseTimeStampAndMessage :: String -> (TimeStamp, String)
 parseTimeStampAndMessage s
   | length(w) < 2            = (-1, "")
@@ -17,6 +24,10 @@ parseTimeStampAndMessage s
   | otherwise                = (-1, "")
   where w = words s
 
+-- |Parse a error level, a timestamp and a content messsage in a String such as
+-- "77 42 Hello!" In that case it would return (77, (42, "Hello!")).
+-- If the input String cannot be parsed in such a way, by convention we
+-- return (-1, (-1, "")).
 parseErrLvlTimeStampAndMessage :: String -> (Int, (TimeStamp, String))
 parseErrLvlTimeStampAndMessage s
   | length(w) < 3                          = (-1, (-1, ""))
