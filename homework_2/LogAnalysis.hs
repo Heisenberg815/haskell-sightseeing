@@ -3,7 +3,7 @@ module LogAnalysis where
 import Log
 import Data.Char
 
--- Ex1
+-- Ex 1
 isStringNumber :: String -> Bool
 isStringNumber ""     = False
 isStringNumber (x:[]) = isNumber x
@@ -28,12 +28,6 @@ parseErrLvlTimeStampAndMessage s
     fw = head w
     sw = head (tail w)
     remainder = drop (length(fw) + length(sw) + 2) s
-
-stripSuperfluousSpaces :: String -> String
-stripSuperfluousSpaces ""          = ""
-stripSuperfluousSpaces (' ':' ':s) = stripSuperfluousSpaces (' ':s)
-stripSuperfluousSpaces (' ':s)     = ' ':stripSuperfluousSpaces s
-stripSuperfluousSpaces (x:s)       = x:stripSuperfluousSpaces s
 
 parseMessage :: String -> LogMessage
 parseMessage p @ ('I':' ':s) 
@@ -62,10 +56,38 @@ getTimeStampFromLogMsg (LogMessage (Error _) t _) = t
 
 insert :: LogMessage -> MessageTree -> MessageTree
 insert (Unknown _) mtree = mtree
-insert lm Leaf = Node Leaf lm Leaf
+insert lm Leaf           = Node Leaf lm Leaf
 insert lm (Node ltree nodelm rtree)
-  | tstamp < nodetstamp = Node (insert lm ltree) nodelm rtree
-  | otherwise = Node ltree nodelm (insert lm rtree)
+  | tstamp < nodetstamp  = Node (insert lm ltree) nodelm rtree
+  | otherwise            = Node ltree nodelm (insert lm rtree)
   where
-    tstamp = getTimeStampFromLogMsg lm
+    tstamp     = getTimeStampFromLogMsg lm
     nodetstamp = getTimeStampFromLogMsg nodelm
+
+-- Ex 3
+build :: [LogMessage] -> MessageTree
+build []    = Leaf
+build (x:s) = insert x (build s)
+
+-- Ex 4
+inOrder :: MessageTree -> [LogMessage]
+inOrder Leaf                      = []
+inOrder (Node ltree nodelm rtree) = (inOrder ltree) ++ [nodelm]
+                                    ++ (inOrder rtree)
+
+-- Ex 5
+getStringFromLogMsg :: LogMessage -> String
+getStringFromLogMsg (Unknown s) = s
+getStringFromLogMsg (LogMessage Info _ s) = s
+getStringFromLogMsg (LogMessage Warning _ s) = s
+getStringFromLogMsg (LogMessage (Error _) _ s) = s
+
+isRelevant :: LogMessage -> Bool
+isRelevant (Unknown _)                 = False
+isRelevant (LogMessage Info _ _)       = False
+isRelevant (LogMessage Warning _ _)    = False
+isRelevant (LogMessage (Error el) _ _) = el >= 50
+
+whatWentWrong :: [LogMessage] -> [String]
+whatWentWrong l = map getStringFromLogMsg (filter isRelevant sorted)
+  where sorted  = inOrder (build l)
