@@ -1,21 +1,27 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 module Calc where
-import ExprT
+-- import ExprT
 import Parser
+import StackVM
+
+-- Note: the first 2 exs have been commented because there is a conflict
+-- between ExprT.add and StackVM.add
 
 -- Ex 1
-eval :: ExprT -> Integer
-eval (Lit x)     = x
-eval (Add e1 e2) = (eval e1) + (eval e2)
-eval (Mul e1 e2) = (eval e1) * (eval e2)
+-- eval :: ExprT -> Integer
+-- eval (Lit x)     = x
+-- eval (Add e1 e2) = (eval e1) + (eval e2)
+-- eval (Mul e1 e2) = (eval e1) * (eval e2)
 
 -- Ex 2
-evalMaybe :: Maybe ExprT -> Maybe Integer
-evalMaybe Nothing = Nothing
-evalMaybe (Just e) = Just (eval e)
-
-evalStr :: String -> Maybe Integer
-evalStr = evalMaybe . (parseExp Lit Add Mul)
+-- evalMaybe :: Maybe ExprT -> Maybe Integer
+-- evalMaybe Nothing = Nothing
+-- evalMaybe (Just e) = Just (eval e)
+--
+-- evalStr :: String -> Maybe Integer
+-- evalStr = evalMaybe . (parseExp Lit Add Mul)
 
 -- Ex 3
 class Expr a where
@@ -23,10 +29,10 @@ class Expr a where
   add :: a -> a -> a
   mul :: a -> a -> a
 
-instance Expr ExprT where
-  lit = Lit
-  add = Add
-  mul = Mul
+-- instance Expr ExprT where
+--   lit = Lit
+--   add = Add
+--   mul = Mul
 
 -- Ex 4
 newtype MinMax = MinMax Integer deriving (Eq, Show)
@@ -55,3 +61,13 @@ instance Expr Mod7 where
 -- tests
 testExp :: Expr a => Maybe a
 testExp = parseExp lit add mul "(3 * -4) + 5"
+
+-- Ex 5
+
+instance Expr Program where
+  lit a = [PushI a]
+  add p1 p2 = (p1++p2)++[Add]
+  mul p1 p2 = (p1++p2)++[Mul]
+
+compile :: String -> Maybe Program
+compile = parseExp lit add mul
