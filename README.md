@@ -3,7 +3,7 @@ Discovering Haskell wonders
 
 In this repository, I propose solutions for the assignements of the excellent [cis-194](http://www.seas.upenn.edu/~cis194/spring13/) Haskell course.
 
-This is currently a work in progress, only the homeworks 1, 2, 3 are completed.
+This is currently a work in progress, only the homeworks 1, 2, 3, 4 and 5 are completed.
 
 PS: The optional exercices won't be tackled (at least not at first).
 
