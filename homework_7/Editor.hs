@@ -34,6 +34,11 @@ commands = map show [View, Edit, Next, Prev, Quit]
 
 -- Editor monad
 
+-- This was added to the original file, to make it compliant with v 8.0.2
+instance Applicative (Editor b) where
+  pure = return
+  (<*>) = ap
+
 newtype Editor b a = Editor (StateT (b,Int) IO a)
   deriving (Functor, Monad, MonadIO, MonadState (b,Int))
 
