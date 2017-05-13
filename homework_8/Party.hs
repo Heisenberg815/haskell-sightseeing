@@ -7,7 +7,6 @@ import Data.Tree
 import Employee
 
 -- Ex 1
-
 glCons :: Employee -> GuestList -> GuestList
 glCons e (GL employees fun) = GL (e:employees) (fun + (empFun e))
 
@@ -31,3 +30,18 @@ nextLevel e l = (glCons e (mconcat (map snd l)), mconcat (map fst l))
 -- Ex4
 maxFun :: Tree Employee -> GuestList
 maxFun = uncurry moreFun . treeFold nextLevel
+
+--Ex 5
+putEmployee :: Employee -> IO()
+putEmployee  = putStrLn . empName
+
+putGuestList :: GuestList -> IO ()
+putGuestList (GL employees fun) = foldr (\e io -> io >> putEmployee e) header employees
+  where
+    header = putStr "Total fun: " >> putStrLn (show fun)
+
+main :: IO ()
+main = do
+       s <- readFile "company.txt"
+       let tree = read s :: Tree Employee
+       putGuestList $ maxFun tree
