@@ -71,7 +71,7 @@ instance Functor Parser where
 first' :: Maybe (a -> b,  String) -> Maybe(a, String) -> Maybe(b, String)
 first' Nothing _                 = Nothing
 first' _ Nothing                 = Nothing
-first' (Just(f, s)) (Just(x, _)) = Just(f x, s)
+first' (Just(f, _)) (Just(x, s)) = Just(f x, s)
 
 instance Applicative Parser where
   pure x = Parser f
@@ -79,8 +79,21 @@ instance Applicative Parser where
       f [] = Nothing
       f (_:t) = Just(x, t)
   p1 <*> p2 = Parser f
-   where 
-     f xs = first' v1 v2
-       where
-         v1 = (runParser p1) xs
-         v2 = (runParser p2) xs
+    where
+      f [] = Nothing
+      f s = first' v1 v2
+        where
+          (v1, s1) = (runParser p1) (h:t)
+          v2 = (runParser p2) s1
+
+-- Ex 3
+abParser :: Parser (Char, Char)
+abParser = (\x y -> (x, y)) <$> (satisfy (=='a')) <*> (satisfy (=='b'))
+
+--
+abParser_ :: Parser ()
+abParser_ = (\_ _ -> ()) <$> (satisfy (=='a')) <*> (satisfy (=='b'))
+
+--
+intPair :: Parser [Integer]
+intPair = (\x _ y -> [x, y]) <$> posInt <*> (satisfy (==' ')) <*> posInt
