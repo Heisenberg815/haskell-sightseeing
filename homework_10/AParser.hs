@@ -74,18 +74,12 @@ first' _ Nothing                 = Nothing
 first' (Just(f, _)) (Just(x, s)) = Just(f x, s)
 
 instance Applicative Parser where
-  pure x = Parser f
-    where
-      f [] = Nothing
-      f (_:t) = Just(x, t)
-  p1 <*> p2 = Parser f
-    where
-      f [] = Nothing
-      f s = first' v1 v2
-        where
-          (v1, s1) = (runParser p1) (h:t)
-          v2 = (runParser p2) s1
-
+  pure x = Parser (\s -> Just (x, s))
+  Parser f <*> p = Parser (\s ->
+    case f s of
+      Nothing -> Nothing
+      Just(g, s') -> first g ((runParser p) s')
+    )
 -- Ex 3
 abParser :: Parser (Char, Char)
 abParser = (\x y -> (x, y)) <$> (satisfy (=='a')) <*> (satisfy (=='b'))
