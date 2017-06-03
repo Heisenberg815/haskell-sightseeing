@@ -91,3 +91,13 @@ abParser_ = (\_ _ -> ()) <$> (satisfy (=='a')) <*> (satisfy (=='b'))
 --
 intPair :: Parser [Integer]
 intPair = (\x _ y -> [x, y]) <$> posInt <*> (satisfy (==' ')) <*> posInt
+
+-- Ex 4
+instance Alternative Parser where
+  empty = Parser (\_ -> Nothing)
+  p1 <|> p2 = Parser (\s -> (runParser p1 $ s) <|> (runParser p2 $ s))
+
+-- Ex 5
+intOrUppercase :: Parser ()
+intOrUppercase = (fmap unit posInt) <|> (fmap unit (satisfy isUpper))
+  where unit = (\_ -> ())
