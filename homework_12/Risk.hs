@@ -73,3 +73,9 @@ battle b @ (Battlefield x1 x2) = subtractCasualties <$> return b <*> cs
     dice1 = fmap (sortBy orderDV) (simulateDice s1)
     dice2 = fmap (sortBy orderDV) (simulateDice s2)
     cs = nbCasualties <$> dice1 <*> dice2
+
+-- Ex 3
+invade :: Battlefield -> Rand StdGen Battlefield
+invade b @ (Battlefield x y)
+  | x < 2 || y < 1 = return b
+  | otherwise      = battle b >>= invade
