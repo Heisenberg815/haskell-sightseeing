@@ -79,3 +79,11 @@ invade :: Battlefield -> Rand StdGen Battlefield
 invade b @ (Battlefield x y)
   | x < 2 || y < 1 = return b
   | otherwise      = battle b >>= invade
+
+-- Ex 4
+successProb :: Battlefield -> Rand StdGen Double
+successProb b = fmap ratio $ sequence $ fmap (fmap attackersWin . invade) (replicate 1000 b)
+  where
+    attackersWin (Battlefield _ y) = if y == 0 then 1 else 0
+    ratio :: [Int] -> Double
+    ratio l = (fromIntegral (sum l)) / (fromIntegral (length l))
